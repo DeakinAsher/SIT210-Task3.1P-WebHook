@@ -1,0 +1,45 @@
+// This #include statement was automatically added by the Particle IDE.
+#include <ThingSpeak.h>
+
+
+
+
+int analogvalue = 0;
+int temp_f;
+TCPClient client;
+
+unsigned long myChannelNumber = 1687008;
+const char * myWriteAPIKey = "XAFKQOGGP4E65OOG";
+
+void setup(){
+
+  ThingSpeak.begin(client);
+  
+  Particle.variable("analogvalue", analogvalue);
+  Particle.variable("temp_f", temp_f);
+ 
+Serial.begin(9600);
+
+  pinMode(A0, INPUT);
+}
+
+void loop()
+{
+    delay(1500);
+  // Read the analog value of the sensor (TMP36)
+  analogvalue = analogRead(A0);
+  //Convert the reading into degree 
+  temp_f = (analogvalue*-.08099688473520249+151.99688473520249); //To be accurate
+  //temp = 69;
+  temp_f = ((temp_f - 85) * 5/9);
+
+  
+  
+  Particle.publish("temperature",String (temp_f), ALL_DEVICES);// sends data to cloud
+  ThingSpeak.setField(1,temp_f);
+  Serial.print(temp_f);
+  Serial.println("temp_f");
+  ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
+  delay(20000);
+
+}
